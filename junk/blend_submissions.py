@@ -16,13 +16,14 @@ if __name__ == '__main__':
 
     n = 18790469
     blend = np.zeros(n, dtype=np.float32)
+    wnorm = sum(args.weights)
     for j, fname in enumerate(args.submissions):
         df = pd.read_csv(fname)
         df.sort_values(by=['click_id'], inplace=True)
         values = df['is_attributed'].values
         if args.mix_logits:
             values = logit(values)
-        blend += args.weights[j] * values
+        blend += args.weights[j] * values / wnorm
 
     if args.mix_logits:
         blend = expit(blend)

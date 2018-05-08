@@ -10,4 +10,4 @@ if __name__ == '__main__':
     subsample_idx = np.where((is_attributed_col == 1) | ((is_attributed_col == 0) & (subsample == 1)))[0]
 
     print(subsample_idx.shape[0])
-    dfc.write_index('subsample_not_attributed_50pct', subsample_idx)
+    dfc.write_index('subsample_not_attributed_50pct_2', subsample_idx)

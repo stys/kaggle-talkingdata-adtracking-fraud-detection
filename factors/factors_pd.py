@@ -7,7 +7,6 @@ import pandas as pd
 
 from lib.project import project
 from lib.columns import DataFrameCols
-from lib.hocon import write_config, config2json
 from lib.utils import makedirs
 
 
@@ -105,60 +104,12 @@ class Factors(object):
 
         return df
 
-    def overflow_counter(self, df, name, hash_id, limit, reverse=False, num_bits=27, **other):
-        d = (1 << num_bits)
-        start_time = df['epoch'].iloc[0] if not reverse else df['epoch'].iloc[-1]
-
-        counts = np.zeros(d, dtype=np.uint32)
-        overflow_time = np.full(d, start_time, dtype=np.uint32)
-        prev_overflow_time = np.full(d, start_time, dtype=np.uint32)
-
-        dt1 = np.zeros(df.shape[0], dtype=np.uint32)
-        dt2 = np.zeros(df.shape[0], dtype=np.uint32)
-        levels = np.zeros(df.shape[0], dtype=np.uint32)
-
-        ids = df[hash_id].values
-        epochs = df['epoch'].values
-        if reversed:
-            ids = reversed(ids)
-            epochs = reversed(epochs)
-
-        for i, (_id, t0) in enumerate(zip(ids, epochs)):
-            counts[_id] += 1
-            level = counts[_id] % limit
-            if level == 0:
-                prev_overflow_time[_id] = overflow_time[_id]
-                overflow_time[_id] = t0
-
-            levels[i] = level
-            if not reverse:
-                dt1[i] = t0 - overflow_time[_id]
-                dt2[i] = overflow_time[_id] - prev_overflow_time[_id]
-            else:
-                dt1[i] = overflow_time[_id] - t0
-                dt2[i] = prev_overflow_time[_id] - overflow_time[_id]
-
-        del counts, overflow_time, prev_overflow_time
-        gc.collect()
-
-        if not reverse:
-            df[name + '_level'] = levels
-            df[name + '_dt1'] = dt1
-            df[name + '_dt2'] = dt2
-        else:
-            df[name + '_level'] = np.flipud(levels)
-            df[name + '_dt1'] = np.flipud(dt1)
-            df[name + '_dt2'] = np.flipud(dt2)
-
-        return df
-
-
 def main(conf):
     dump_dir = abspath(conf['factors_pd']['dump']['dir'])
     makedirs(dump_dir)
 
-    col_dir = abspath(conf['factors_pd']['source'])
-    dfc = DataFrameCols(col_dir)
+    data_dir = abspath(conf['factors_pd']['source'])
+    dfc = DataFrameCols(data_dir)
 
     computer = Factors()
     for group in conf['factors_pd']['factors']:

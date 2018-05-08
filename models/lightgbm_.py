@@ -26,7 +26,10 @@ def quality(labels, pred):
 
 def train_lightgbm(params, train_dataset, valid_dataset=None, **options):
     logging.info('Training LightGBM with params: %s', config2json(params))
-    model = lgb.train(params, train_dataset, valid_sets=[train_dataset, valid_dataset], **options)
+    if valid_dataset is not None:
+        model = lgb.train(params, train_dataset, valid_sets=[train_dataset, valid_dataset], **options)
+    else:
+        model = lgb.train(params, train_dataset, valid_sets=[train_dataset], **options)
     return model
 
 
@@ -77,6 +80,9 @@ def main(conf):
     del train_dataset
     del valid_dataset
     gc.collect()
+
+    # load model
+    # model = lgb.Booster(model_file=join_path(dump_dir, 'model.bin'))
 
     # train_label = train_df[label].values
     # train_pred = model.predict(train_df[features])

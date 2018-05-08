@@ -6,8 +6,6 @@ from os import chdir, getcwd
 from os.path import join as join_path, abspath
 from copy import deepcopy
 
-import pandas as pd
-
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import log_loss, roc_auc_score
 from hyperopt import fmin, hp, STATUS_OK, Trials, tpe
@@ -171,6 +169,7 @@ if __name__ == '__main__':
     valid_quality = quality(valid_df[target].values, valid_pred)
     logging.info('Cross-check best model validation score: AUC=%s' % valid_quality['auc'])
 
+    # load model
     # model = CatBoostClassifier()
     # model.load_model(join_path(dump_dir, 'model.bin'))
 
